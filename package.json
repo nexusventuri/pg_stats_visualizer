@@ -5,9 +5,12 @@
     "@babel/preset-react": "^7.0.0",
     "@rails/webpacker": "^4.0.2",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "d3": "^5.9.2",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "rechart": "^0.0.1",
+    "recharts": "^1.5.0",
     "semantic-ui-react": "^0.86.0"
   },
   "devDependencies": {
