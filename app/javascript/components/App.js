@@ -1,12 +1,14 @@
 import React from 'react'
 import {Container, Form, Loader} from 'semantic-ui-react'
 import MyLineChart from './MyLineChart'
+import TableList from './TableList'
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false
+      loading: false,
+      tables: []
     };
   }
 
@@ -24,8 +26,11 @@ class App extends React.Component {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({databaseUrl})
-    }).then(() => {
+    }).then(response => {
+      return response.json();
+    }).then((data) => {
       this.setState({loading: false});
+      this.setState({tables: data})
     })
   }
 
@@ -39,6 +44,7 @@ class App extends React.Component {
           </Form.Group>
         </Form>
         { this.state.loading && <Loader active inline='centered' /> }
+        { this.state.tables.length > 0 && <TableList databaseUrl={this.state.databaseUrl} tables={this.state.tables}/>}
       </Container>
     )
   }
