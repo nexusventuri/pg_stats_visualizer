@@ -11,8 +11,20 @@ export default class TableList extends Component {
   }
 
   handleClick = (e, titleProps) => {
-    const { index } = titleProps;
+    const { index, table, schema } = titleProps;
+    console.log(table, schema);
     this.setState( { activeIndex: index } );
+    fetch('/api/v1/table/pg_stats', {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({table, schema})
+    }).then(response => {
+      debugger;
+      return response.json();
+    })
   }
 
   render () {
@@ -21,7 +33,7 @@ export default class TableList extends Component {
     let content = this.props.tables.map(({table_schema, table_name}, index) => {
       return (
         <div key={index}>
-          <Accordion.Title active={activeIndex === index} index={index} onClick={this.handleClick}>
+          <Accordion.Title active={activeIndex === index} table={table_name} schema={table_schema} index={index} onClick={this.handleClick}>
             <Icon name="dropdown" />
             {table_schema}.{table_name}
           </Accordion.Title>

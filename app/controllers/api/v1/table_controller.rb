@@ -4,18 +4,14 @@ class Api::V1::TableController < ApplicationController
   def create
     url = params['databaseUrl']
 
-    ActiveRecord::Base.establish_connection(url)
+    PostgresMetadata.use_connection(url)
 
-    conn = ActiveRecord::Base.connection
+    render json: PostgresMetadata.tables.to_a
+  end
 
-    result = conn.execute(<<-SQL
-      SELECT table_schema, table_name
-      FROM information_schema.tables
-      WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
-      ORDER BY 1, 2 desc;
-    SQL
-    )
+  def find_metadata
+    table_and_schema_params = params.permit(:table, :schema)
 
-    render json: result.to_a
+    PostgresMetadata.pg_stats(table_and_schema_params)
   end
 end
