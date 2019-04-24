@@ -9,9 +9,10 @@ class Api::V1::TableController < ApplicationController
     render json: PostgresMetadata.tables.to_a
   end
 
-  def find_metadata
-    table_and_schema_params = params.permit(:table, :schema)
+  def pg_stats
+    table, schema, url = params.permit(:table, :schema, :databaseUrl).values
+    PostgresMetadata.use_connection(url)
 
-    PostgresMetadata.pg_stats(table_and_schema_params)
+    render json: PostgresMetadata.pg_stats(table: table, schema: schema).to_a
   end
 end

@@ -1,35 +1,36 @@
 import React, { Component } from 'react';
-import {Accordion, Icon} from 'semantic-ui-react'
+import {Accordion, Icon, Loader} from 'semantic-ui-react'
+import TableMetadata from './TableMetadata'
 
 export default class TableList extends Component {
   constructor(props) {
     super(props);
     this.state = {
       activeIndex: 0,
-      loadedIndexes: []
+      loadedIndexes: [],
+      tableMetadata: []
     }
   }
 
   handleClick = (e, titleProps) => {
     const { index, table, schema } = titleProps;
-    console.log(table, schema);
-    this.setState( { activeIndex: index } );
-    fetch('/api/v1/table/pg_stats', {
-      method: 'GET',
+    this.setState( { activeIndex: index, tableMetadata: [] } );
+    fetch(`/api/v1/table/pg_stats`, {
+      method: 'POST',
       mode: 'cors',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({table, schema})
+      body: JSON.stringify({table, schema, databaseUrl: this.props.databaseUrl})
     }).then(response => {
-      debugger;
       return response.json();
+    }).then(data => {
+      this.setState({tableMetadata: data});
     })
   }
 
   render () {
     let { activeIndex } = this.state;
-
     let content = this.props.tables.map(({table_schema, table_name}, index) => {
       return (
         <div key={index}>
@@ -38,7 +39,11 @@ export default class TableList extends Component {
             {table_schema}.{table_name}
           </Accordion.Title>
           <Accordion.Content active={activeIndex === index}>
-          placeholder for {table_name}
+            {
+              this.state.tableMetadata.length === 0 ?
+              <Loader active inline='centered' /> :
+              <TableMetadata data={this.state.tableMetadata} />
+            }
           </Accordion.Content>
         </div>
       );

@@ -14,6 +14,12 @@ class PostgresMetadata < ActiveRecord::Base
   end
 
   def self.pg_stats(table:, schema:)
-    byebug
+    query = <<-SQL
+    SELECT *
+    FROM pg_stats
+    WHERE schemaname = ? and tablename = ?
+    SQL
+
+    self.connection.exec_query(sanitize_sql_for_conditions([query, table, schema]))
   end
 end

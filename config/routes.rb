@@ -6,7 +6,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :table, only: [:create] do
         collection do
-          get 'pg_stats', action: :pg_stats, controller: :table
+          post 'pg_stats', action: :pg_stats, controller: :table
         end
       end
     end

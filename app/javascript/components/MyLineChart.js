@@ -31,7 +31,6 @@ export default class MyLineChart extends Component {
   }
 
   render () {
-    console.log(this.data);
     return (
       <LineChart width={600} height={300} data={this.data} margin={{top: 5, right: 30, left: 20, bottom: 5}} >
         <XAxis dataKey="name"/>
