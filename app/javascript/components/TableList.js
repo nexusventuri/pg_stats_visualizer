@@ -38,13 +38,7 @@ export default class TableList extends Component {
             <Icon name="dropdown" />
             {table_schema}.{table_name}
           </Accordion.Title>
-          <Accordion.Content active={activeIndex === index}>
-            {
-              this.state.tableMetadata.length === 0 ?
-              <Loader active inline='centered' /> :
-              <TableMetadata data={this.state.tableMetadata} />
-            }
-          </Accordion.Content>
+          {this.renderAccordionContent(index, activeIndex)}
         </div>
       );
     })
@@ -54,5 +48,18 @@ export default class TableList extends Component {
         {content}
       </Accordion>
     )
+  }
+
+  renderAccordionContent = (index, activeIndex) => {
+    if (activeIndex === index) {
+      return (
+        <Accordion.Content active={activeIndex === index}>
+          <Loader active={this.state.tableMetadata.length === 0} inline='centered' />
+          <TableMetadata data={this.state.tableMetadata} />
+        </Accordion.Content>
+      );
+    }
+
+    return <Accordion.Content />
   }
 }
