@@ -20,6 +20,6 @@ class PostgresMetadata < ActiveRecord::Base
     WHERE schemaname = ? and tablename = ?
     SQL
 
-    self.connection.exec_query(sanitize_sql_for_conditions([query, table, schema]))
+    self.connection.exec_query(sanitize_sql_for_conditions([query, schema, table]))
   end
 end
