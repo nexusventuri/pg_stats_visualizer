@@ -20,15 +20,13 @@ export default class TableMetadata extends Component {
   }
 
   render() {
-    const panes = [
-    ]
     let rows_view = this.props.data.map(this.renderRow);
     return (<div>{rows_view}</div>)
   }
 
-  renderRow = (row) => {
+  renderRow = (row, key) => {
     return (
-      <div>
+      <div key={key}>
         <Header as='h3'>{row.attname}</Header>
         {this.renderTabs(row)}
       </div>
