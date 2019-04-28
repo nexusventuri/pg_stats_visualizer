@@ -85,15 +85,13 @@ export default class HistogramChart extends Component {
   render () {
     var linear = scaleLinear(this.histogramBounds, [0, 100]);
     return (
-      <div key='play-around'>
-        <LineChart width={800} height={300} data={this.data} margin={{top: 5, right: 30, left: 20, bottom: 5}} >
-          <XAxis dataKey="name" scale={linear} tickFormatter={this.formatter}/>
-          <YAxis/>
-          <Tooltip labelFormatter={this.labelFormatter} formatter={this.tooltipFormatter}/>
-          <Legend />
-          <Line type="monotone" dataKey="cumulativePercentage" stroke="#8884d8"/>
-        </LineChart>
-      </div>
+      <LineChart width={800} height={300} data={this.data} margin={{top: 5, right: 30, left: 20, bottom: 5}} >
+        <XAxis dataKey="name" scale={linear} tickFormatter={this.formatter}/>
+        <YAxis/>
+        <Tooltip labelFormatter={this.labelFormatter} formatter={this.tooltipFormatter}/>
+        <Legend />
+        <Line type="monotone" dataKey="cumulativePercentage" stroke="#8884d8"/>
+      </LineChart>
     );
   }
 }
