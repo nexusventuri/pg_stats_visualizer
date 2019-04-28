@@ -3,10 +3,6 @@ import { List } from 'semantic-ui-react'
 
 export default class RawDataVisualizer extends React.Component {
   render() {
-    <List.Item>
-      <List.Header>New York City</List.Header>
-      A lovely city
-    </List.Item>
     return (
       <List>
         { Object.entries(this.props.data).map(this.renderPair) }
@@ -14,11 +10,11 @@ export default class RawDataVisualizer extends React.Component {
     )
   }
 
-  renderPair(pair) {
+  renderPair(pair, index) {
     let [key, val] = pair;
 
     return (
-      <List.Item>
+      <List.Item key={index}>
         <List.Header>{key}</List.Header>
         {val}
       </List.Item>

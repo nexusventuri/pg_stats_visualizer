@@ -6,15 +6,22 @@ export default class TableList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeIndex: 0,
+      activeIndexes: new Set([]),
       loadedIndexes: [],
-      tableMetadata: []
+      tableMetadata: new Map([])
     }
   }
 
   handleClick = (e, titleProps) => {
     const { index, table, schema } = titleProps;
-    this.setState( { activeIndex: index, tableMetadata: [] } );
+    ;
+
+    this.setState( { activeIndexes: this.toggleActiveIndex(new Set(this.state.activeIndexes), index) } );
+
+    if(this.state.tableMetadata.has(index)) {
+      return;
+    }
+
     fetch(`/api/v1/table/pg_stats`, {
       method: 'POST',
       mode: 'cors',
@@ -25,37 +32,42 @@ export default class TableList extends Component {
     }).then(response => {
       return response.json();
     }).then(data => {
-      this.setState({tableMetadata: data});
+      let tableMetadata = new Map(this.state.tableMetadata).set(index, data);
+      this.setState({tableMetadata});
     })
   }
 
+  toggleActiveIndex(set, index) {
+    set.has(index) ? set.delete(index) : set.add(index);
+    return set;
+  }
+
   render () {
-    let { activeIndex } = this.state;
     let content = this.props.tables.map(({table_schema, table_name}, index) => {
       return (
         <div key={index}>
-          <Accordion.Title active={activeIndex === index} table={table_name} schema={table_schema} index={index} onClick={this.handleClick}>
-            <Icon name="dropdown" />
-            {table_schema}.{table_name}
+          <Accordion.Title active={this.state.activeIndexes.has(index)} table={table_name} schema={table_schema} index={index} onClick={this.handleClick}>
+          <Icon name="dropdown" />
+          {table_schema}.{table_name}
           </Accordion.Title>
-          {this.renderAccordionContent(index, activeIndex)}
+          {this.renderAccordionContent(index)}
         </div>
       );
     })
 
     return(
       <Accordion fluid styled>
-        {content}
+      {content}
       </Accordion>
     )
   }
 
-  renderAccordionContent = (index, activeIndex) => {
-    if (activeIndex === index) {
+  renderAccordionContent = (index) => {
+    if (this.state.activeIndexes.has(index)) {
       return (
-        <Accordion.Content active={activeIndex === index}>
-          <Loader active={this.state.tableMetadata.length === 0} inline='centered' />
-          <TableMetadata data={this.state.tableMetadata} />
+        <Accordion.Content active={true}>
+        <Loader active={!this.state.tableMetadata.has(index)} inline='centered' />
+        <TableMetadata data={this.state.tableMetadata.get(index) || []} />
         </Accordion.Content>
       );
     }

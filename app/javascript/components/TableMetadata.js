@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {Tab, Header} from 'semantic-ui-react'
 import MostCommonValuesChart from './data_visualization/MostCommonValuesChart'
 import RawDataVisualizer from './data_visualization/RawDataVisualizer'
+import HistogramChart from './data_visualization/HistogramChart'
 
 //null_frac              | 0
 //avg_width              | 4
@@ -19,15 +20,13 @@ export default class TableMetadata extends Component {
   }
 
   render() {
-    const panes = [
-    ]
     let rows_view = this.props.data.map(this.renderRow);
     return (<div>{rows_view}</div>)
   }
 
-  renderRow = (row) => {
+  renderRow = (row, key) => {
     return (
-      <div>
+      <div key={key}>
         <Header as='h3'>{row.attname}</Header>
         {this.renderTabs(row)}
       </div>
@@ -56,7 +55,7 @@ export default class TableMetadata extends Component {
     if(row.histogramBounds === null) {
       return null;
     }
-    return {menuItem: 'Histogram bounds', render: () => 'Not yet implemented'}
+    return {menuItem: 'Histogram bounds', render: () => 'no data'}
   }
 
   rawDataTab = (row) => {
