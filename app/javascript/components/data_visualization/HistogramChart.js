@@ -10,11 +10,10 @@ export default class HistogramChart extends Component {
   constructor(props) {
     super(props);
     let {histogramBounds, formatter, labelFormatter} = this.histogramAndFormatter(this.props.data.histogram_bounds);
-    let percentage = 100.0 / (histogramBounds.length);
+    let percentage = 100.0 / (histogramBounds.length - 1);
     let cumulativePercentage = [percentage];
 
     histogramBounds.forEach((value, index) => { cumulativePercentage.push(cumulativePercentage[index] + percentage)})
-    console.log(cumulativePercentage);
 
     this.data = histogramBounds.map((val, i) => { return { name: val, percentage, cumulativePercentage: cumulativePercentage[i] } })
     this.histogramBounds = histogramBounds;
@@ -44,7 +43,6 @@ export default class HistogramChart extends Component {
     let firstValue = histogramValues[0].toLowerCase();
 
     if(firstValue.match(dateMatch)) {
-      console.log('date match', firstValue.replace('"', ''), new Date(firstValue.replace(/"/g, '')));
       return histogramValues.map(val => { return new Date(val.replace(/"/g, '')).getTime() });
     } else if(firstValue.match(uuidMatch)) {
       return histogramValues.map(val => this.uuidValueDistance(val));

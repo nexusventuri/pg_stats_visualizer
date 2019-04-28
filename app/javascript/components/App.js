@@ -43,16 +43,6 @@ class App extends React.Component {
 
     return (
       <Container>
-        <Header as='h3'>Date distribution</Header>
-        <HistogramChart data={{histogram_bounds: dateDistribution}} />
-        <Header as='h3'>Simple number distribution</Header>
-        <HistogramChart data={{histogram_bounds: simpleNumberDistribution}} />
-        <Header as='h3'>Number distribution</Header>
-        <HistogramChart data={{histogram_bounds: numberDistribution}} />
-        <Header as='h3'>String distribution</Header>
-        <HistogramChart data={{histogram_bounds: stringDistribution}} />
-        <Header as='h3'>Guid distribution</Header>
-        <HistogramChart data={{histogram_bounds: guidDistribution}} />
         <Form onSubmit={this.handleSubmit}>
           <Form.Group>
             <Form.Input name='databaseUrl' placeholder='Connection string' onChange={this.handleChange}/>

@@ -52,10 +52,10 @@ export default class TableMetadata extends Component {
   }
 
   histogramTab = (row) => {
-    if(row.histogramBounds === null) {
+    if(row.histogram_bounds === null) {
       return null;
     }
-    return {menuItem: 'Histogram bounds', render: () => 'no data'}
+    return {menuItem: 'Histogram bounds', render: () => <HistogramChart data={row} />}
   }
 
   rawDataTab = (row) => {

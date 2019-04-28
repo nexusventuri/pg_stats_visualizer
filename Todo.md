@@ -8,6 +8,8 @@
 - Sql parser and showing the data related to fields used
 - select an area to see the percentages
 - show indexes, show number of rows and percentages
+- Add range to tooltips
+- Verify tooltips range
 
 # Ruby
 - Avoid activerecord, connect and destroy connections
