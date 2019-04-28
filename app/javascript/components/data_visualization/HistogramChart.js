@@ -9,8 +9,8 @@ const numberMatch = /^[0-9]*$/
 export default class HistogramChart extends Component {
   constructor(props) {
     super(props);
-    let {histogramBounds, formatter} = this.histogramAndFormatter(this.props.data.histogram_bounds);
-    let percentage = 100.0 / (histogramBounds.length - 1);
+    let {histogramBounds, formatter, labelFormatter} = this.histogramAndFormatter(this.props.data.histogram_bounds);
+    let percentage = 100.0 / (histogramBounds.length);
     let cumulativePercentage = [percentage];
 
     histogramBounds.forEach((value, index) => { cumulativePercentage.push(cumulativePercentage[index] + percentage)})
@@ -19,6 +19,7 @@ export default class HistogramChart extends Component {
     this.data = histogramBounds.map((val, i) => { return { name: val, percentage, cumulativePercentage: cumulativePercentage[i] } })
     this.histogramBounds = histogramBounds;
     this.formatter = formatter;
+    this.labelFormatter = labelFormatter;
   }
 
   histogramAndFormatter = (histogramBounds) => {
@@ -26,7 +27,13 @@ export default class HistogramChart extends Component {
     let valueDistances = this.calculateValuesDistance(parsedHistogram);
 
     let formatter = (value) => { return parsedHistogram[valueDistances.indexOf(value)]};
-    return {histogramBounds: valueDistances, formatter};
+    let labelFormatter = (value) => {
+      // need to add the range
+      let index = valueDistances.indexOf(value);
+      return parsedHistogram[index];
+    };
+
+    return {histogramBounds: valueDistances, formatter, labelFormatter};
   }
 
   parseHistogramBounds = (value) => {
@@ -71,6 +78,10 @@ export default class HistogramChart extends Component {
     return result;
   }
 
+  tooltipFormatter(value, name,  props) {
+    return value + "%";
+  }
+
   render () {
     var linear = scaleLinear(this.histogramBounds, [0, 100]);
     return (
@@ -78,7 +89,7 @@ export default class HistogramChart extends Component {
         <LineChart width={800} height={300} data={this.data} margin={{top: 5, right: 30, left: 20, bottom: 5}} >
           <XAxis dataKey="name" scale={linear} tickFormatter={this.formatter}/>
           <YAxis/>
-          <Tooltip/>
+          <Tooltip labelFormatter={this.labelFormatter} formatter={this.tooltipFormatter}/>
           <Legend />
           <Line type="monotone" dataKey="cumulativePercentage" stroke="#8884d8"/>
         </LineChart>
