@@ -1,14 +1,15 @@
 class PostgresMetadata < ActiveRecord::Base
-  def self.use_connection(url)
-    ActiveRecord::Base.establish_connection(url)
+  def self.using_connection(url)
+    @conn = PG::Connection.open(url)
+    yield
+    @conn.close
   end
 
   def self.tables
-    self.connection.execute(<<-SQL
+    @conn.exec(<<-SQL
       SELECT table_schema, table_name
       FROM information_schema.tables
-      WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
-      ORDER BY 1, 2 desc;
+      WHERE table_schema NOT IN ('information_schema', 'pg_catalog') ORDER BY 1, 2 desc;
     SQL
     )
   end
@@ -17,9 +18,9 @@ class PostgresMetadata < ActiveRecord::Base
     query = <<-SQL
     SELECT *
     FROM pg_stats
-    WHERE schemaname = ? and tablename = ?
+    WHERE schemaname = $1 and tablename = $2
     SQL
 
-    self.connection.exec_query(sanitize_sql_for_conditions([query, schema, table]))
+    @conn.exec_params(query, [schema, table])
   end
 end

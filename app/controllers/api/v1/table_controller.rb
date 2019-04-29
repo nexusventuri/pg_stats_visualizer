@@ -3,16 +3,21 @@ class Api::V1::TableController < ApplicationController
 
   def create
     url = params['databaseUrl']
+    data = []
+    PostgresMetadata.using_connection(url) do
+      data = PostgresMetadata.tables.to_a
+    end
 
-    PostgresMetadata.use_connection(url)
-
-    render json: PostgresMetadata.tables.to_a
+    render json: data
   end
 
   def pg_stats
     table, schema, url = params.permit(:table, :schema, :databaseUrl).values
-    PostgresMetadata.use_connection(url)
+    data = []
+    PostgresMetadata.using_connection(url) do
+      data = PostgresMetadata.pg_stats(table: table, schema: schema).to_a
+    end
 
-    render json: PostgresMetadata.pg_stats(table: table, schema: schema).to_a
+    render json: data
   end
 end
