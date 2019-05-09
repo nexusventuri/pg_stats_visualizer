@@ -22,21 +22,16 @@ export default class HistogramChart extends Component {
   }
 
   histogramAndFormatter = (histogramBounds) => {
-    let parsedHistogram = this.parseHistogramBounds(histogramBounds);
-    let valueDistances = this.calculateValuesDistance(parsedHistogram);
+    let valueDistances = this.calculateValuesDistance(histogramBounds);
 
-    let formatter = (value) => { return parsedHistogram[valueDistances.indexOf(value)]};
+    let formatter = (value) => { return histogramBounds[valueDistances.indexOf(value)]};
     let labelFormatter = (value) => {
       // need to add the range
       let index = valueDistances.indexOf(value);
-      return parsedHistogram[index];
+      return histogramBounds[index];
     };
 
     return {histogramBounds: valueDistances, formatter, labelFormatter};
-  }
-
-  parseHistogramBounds = (value) => {
-    return value.substring(1, value.length -1).split(/,\s*/);
   }
 
   calculateValuesDistance = (histogramValues) => {

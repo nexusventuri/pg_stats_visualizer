@@ -5,16 +5,10 @@ export default class MostCommonValuesChart extends Component {
   constructor(props) {
     super(props);
     const {most_common_vals, most_common_freqs} = this.props.data;
-    let values = this.valueToArray(most_common_vals);
-    let freq = this.valueToArray(most_common_freqs);
 
-    this.data = values.map((value, index) => {
-        return { name: value, freq: (freq[index] * 100) };
+    this.data = most_common_vals.map((value, index) => {
+        return { name: value, freq: (most_common_freqs[index] * 100) };
     });
-  }
-
-  valueToArray(value) {
-    return value.substring(1, value.length -1).split(',');
   }
 
   render () {
