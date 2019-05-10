@@ -1,6 +1,7 @@
 class PostgresMetadata < ActiveRecord::Base
   def self.using_connection(url)
     @conn = PG::Connection.open(url)
+    @array_decoder = PG::TextDecoder::Array.new
     @conn.type_map_for_results = PG::BasicTypeMapForResults.new @conn
     yield
     @conn.close
@@ -15,6 +16,7 @@ class PostgresMetadata < ActiveRecord::Base
     )
   end
 
+  PG_STATS_ARRAY_FIELDS = %w{most_common_vals most_common_freq histogram_bounds most_common_elems most_common_elem_freq elem_count_histogram}
   def self.pg_stats(table:, schema:)
     query = <<-SQL
     SELECT *
@@ -23,15 +25,12 @@ class PostgresMetadata < ActiveRecord::Base
     SQL
 
     result = @conn.exec_params(query, [schema, table])
-    decoder = PG::TextDecoder::Array.new
 
     result.map do |row|
-      row['most_common_vals'] = decoder.decode(row['most_common_vals'])
-      row['most_common_freq'] = decoder.decode(row['most_common_freq'])
-      row['histogram_bounds'] = decoder.decode(row['histogram_bounds'])
-      row['most_common_elems'] = decoder.decode(row['most_common_elems'])
-      row['most_common_elem_freq'] = decoder.decode(row['most_common_elem_freq'])
-      row['elem_count_histogram'] = decoder.decode(row['elem_count_histogram'])
+      PG_STATS_ARRAY_FIELDS.each do |field_name|
+        row[field_name] = @array_decoder.decode(row[field_name])
+      end
+
       row
     end
   end
