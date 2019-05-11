@@ -17,7 +17,7 @@ export default class TableMetadata extends Component {
 
   renderRow = (row, key) => {
     return (
-      <Container style={{ paddingBottom: '5em' }}>
+      <Container key={key} style={{ paddingBottom: '5em' }}>
         <Header as='h4' attached='top' block>{row.attname}</Header>
         <Segment attached style={{paddingLeft: 0, paddingRight: 0}}>
           {this.renderTabs(row)}

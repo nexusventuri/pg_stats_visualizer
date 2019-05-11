@@ -16,8 +16,8 @@ export default class HistogramChart extends Component {
     super(props);
     let map = this.histogramAndFormatter(this.props.data);
 
-    this.data = map.keys().map((val, i) => { return { name: val, cumulativePercentage: map.cumulativePercentage()[i] } })
-    this.histogramBounds = map.keys();
+    this.data = map.keys.map((val, i) => { return { name: val, cumulativePercentage: map.cumulativePercentage()[i] } })
+    this.histogramBounds = map.keys;
     this.formatter = map.formatter;
     this.labelFormatter = map.labelFormatter;
   }
