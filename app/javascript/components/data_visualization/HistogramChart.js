@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line} from 'recharts';
 import {scaleLinear, scaleQuantize, scaleQuantile, scaleThreshold} from 'd3-scale'
+import HistogramMap from './HistogramMap'
 
 
 const uuidTypes = ['uuid']
@@ -13,70 +14,17 @@ const booleanTypes = ['boolean']
 export default class HistogramChart extends Component {
   constructor(props) {
     super(props);
-    let {histogramBounds, formatter, labelFormatter} = this.histogramAndFormatter(this.props.data);
-    let percentage = 100.0 / (histogramBounds.length - 1);
-    let cumulativePercentage = [percentage];
+    let map = this.histogramAndFormatter(this.props.data);
 
-    histogramBounds.forEach((value, index) => { cumulativePercentage.push(cumulativePercentage[index] + percentage)})
-
-    this.data = histogramBounds.map((val, i) => { return { name: val, percentage, cumulativePercentage: cumulativePercentage[i] } })
-    this.histogramBounds = histogramBounds;
-    this.formatter = formatter;
-    this.labelFormatter = labelFormatter;
+    this.data = map.keys().map((val, i) => { return { name: val, cumulativePercentage: map.cumulativePercentage()[i] } })
+    this.histogramBounds = map.keys();
+    this.formatter = map.formatter;
+    this.labelFormatter = map.labelFormatter;
   }
 
   histogramAndFormatter = (columnData) => {
     let {histogram_bounds, data_type} = columnData;
-    let valueDistances = this.calculateValuesDistance(histogram_bounds, data_type);
-    // TODO: remove this thing
-    valueDistances = [...new Set(valueDistances)];
-
-    let formatter = (value) => { return histogram_bounds[valueDistances.indexOf(value)]};
-    let labelFormatter = (value) => {
-      // need to add the range
-      let index = valueDistances.indexOf(value);
-      return histogram_bounds[index];
-    };
-
-    return {histogramBounds: valueDistances, formatter, labelFormatter};
-  }
-
-  calculateValuesDistance = (histogramValues, dataType) => {
-    if(dateTypes.indexOf(dataType) >= 0) {
-      return histogramValues.map(val => { return new Date(val).getTime() });
-    } else if(uuidTypes.indexOf(dataType) >= 0) {
-      return histogramValues.map(val => this.uuidValueDistance(val));
-    } else if(intTypes.indexOf(dataType) >= 0) {
-      return histogramValues.map(val => parseInt(val));
-    } else if (floatTypes.indexOf(dataType) >= 0) {
-      return histogramValues.map(val => parseFloat(val));
-    } else if (booleanTypes.indexOf(dataType) >= 0) {
-      return histogramValues.map(val => val == 't');
-    } else {
-      return histogramValues.map(val => { return this.genericStringValueDistance(val); });
-    }
-  }
-
-  uuidValueDistance = (uuid) => {
-    return parseInt(`0x${uuid}`);
-  }
-
-  genericStringValueDistance = (string) => {
-    let validChars = string.toLowerCase().replace(/[^a-z0-9]+/g, '');
-
-    let result = 0;
-    for (let i = 0; i < 5; ++i) {
-      let charCode = validChars.charCodeAt(i) || 0;
-      if(charCode >= 97) { // any char between a-z
-        result += charCode - 97 + 11;
-      } else if(charCode == 0) { // no char available
-        result += 0
-      } else { // numeric char
-        result += charCode - 48 + 1;
-      }
-      result *= 36;
-    }
-    return result;
+    return HistogramMap.fromHistogramBounds(histogram_bounds, data_type);
   }
 
   tooltipFormatter(value, name,  props) {
