@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Tab, Header} from 'semantic-ui-react'
+import {Tab, Header, Container, Segment} from 'semantic-ui-react'
 import MostCommonValuesChart from './data_visualization/MostCommonValuesChart'
 import RawDataVisualizer from './data_visualization/RawDataVisualizer'
 import HistogramChart from './data_visualization/HistogramChart'
@@ -12,29 +12,24 @@ export default class TableMetadata extends Component {
   render() {
     let rowsRender = this.props.data.map(this.renderRow);
 
-    return (
-      <div class="ui celled grid">
-        {rowsRender}
-      </div>);
+    return ( <div>{rowsRender}</div>);
   }
 
   renderRow = (row, key) => {
     return (
-      <div key={key} class="row">
-        <div class="two wide column">
-          <Header as='h3'>{row.attname}</Header>
-        </div>
-        <div class="fourteen wide column">
+      <Container style={{ paddingBottom: '5em' }}>
+        <Header as='h4' attached='top' block>{row.attname}</Header>
+        <Segment attached style={{paddingLeft: 0, paddingRight: 0}}>
           {this.renderTabs(row)}
-        </div>
-      </div>
+        </Segment>
+      </Container>
     );
   }
 
   renderTabs = (row) => {
     const panes = [
-      this.mostCommonValuesTab(row),
       this.histogramTab(row),
+      this.mostCommonValuesTab(row),
       this.rawDataTab(row)
     ].filter(pane => pane != null);
 

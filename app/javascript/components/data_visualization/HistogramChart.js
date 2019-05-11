@@ -2,14 +2,18 @@ import React, { Component } from 'react';
 import {LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line} from 'recharts';
 import {scaleLinear, scaleQuantize, scaleQuantile, scaleThreshold} from 'd3-scale'
 
-const dateMatch = /^"[0-9]{4}-[0-9]{2}-[0-9]{2}/
-const uuidMatch = /^([0-9a-f]{8})-/
-const numberMatch = /^[0-9]*$/
+
+const uuidTypes = ['uuid']
+const dateTypes = ["date", "timestamp without time zone", "timestamp with time zone", "time without time zone"]
+const intTypes = ["bigint", "smallint", "oid", "integer"]
+const floatTypes = ["money", "real","numeric", "double precision"]
+const booleanTypes = ['boolean']
+
 
 export default class HistogramChart extends Component {
   constructor(props) {
     super(props);
-    let {histogramBounds, formatter, labelFormatter} = this.histogramAndFormatter(this.props.data.histogram_bounds);
+    let {histogramBounds, formatter, labelFormatter} = this.histogramAndFormatter(this.props.data);
     let percentage = 100.0 / (histogramBounds.length - 1);
     let cumulativePercentage = [percentage];
 
@@ -21,36 +25,40 @@ export default class HistogramChart extends Component {
     this.labelFormatter = labelFormatter;
   }
 
-  histogramAndFormatter = (histogramBounds) => {
-    let valueDistances = this.calculateValuesDistance(histogramBounds);
+  histogramAndFormatter = (columnData) => {
+    let {histogram_bounds, data_type} = columnData;
+    let valueDistances = this.calculateValuesDistance(histogram_bounds, data_type);
+    // TODO: remove this thing
+    valueDistances = [...new Set(valueDistances)];
 
-    let formatter = (value) => { return histogramBounds[valueDistances.indexOf(value)]};
+    let formatter = (value) => { return histogram_bounds[valueDistances.indexOf(value)]};
     let labelFormatter = (value) => {
       // need to add the range
       let index = valueDistances.indexOf(value);
-      return histogramBounds[index];
+      return histogram_bounds[index];
     };
 
     return {histogramBounds: valueDistances, formatter, labelFormatter};
   }
 
-  calculateValuesDistance = (histogramValues) => {
-    let firstValue = histogramValues[0].toLowerCase();
-
-    if(firstValue.match(dateMatch)) {
-      return histogramValues.map(val => { return new Date(val.replace(/"/g, '')).getTime() });
-    } else if(firstValue.match(uuidMatch)) {
+  calculateValuesDistance = (histogramValues, dataType) => {
+    if(dateTypes.indexOf(dataType) >= 0) {
+      return histogramValues.map(val => { return new Date(val).getTime() });
+    } else if(uuidTypes.indexOf(dataType) >= 0) {
       return histogramValues.map(val => this.uuidValueDistance(val));
-    } else if(firstValue.match(numberMatch)) {
+    } else if(intTypes.indexOf(dataType) >= 0) {
       return histogramValues.map(val => parseInt(val));
+    } else if (floatTypes.indexOf(dataType) >= 0) {
+      return histogramValues.map(val => parseFloat(val));
+    } else if (booleanTypes.indexOf(dataType) >= 0) {
+      return histogramValues.map(val => val == 't');
     } else {
-      return histogramValues.map(val => this.genericStringValueDistance(val));
+      return histogramValues.map(val => { return this.genericStringValueDistance(val); });
     }
   }
 
-  uuidValueDistance = (string) => {
-    let [match, uuidStart] = string.match(uuidMatch);
-    return parseInt(`0x${uuidStart}`);
+  uuidValueDistance = (uuid) => {
+    return parseInt(`0x${uuid}`);
   }
 
   genericStringValueDistance = (string) => {

@@ -19,8 +19,11 @@ class PostgresMetadata < ActiveRecord::Base
   PG_STATS_ARRAY_FIELDS = %w{most_common_vals most_common_freq histogram_bounds most_common_elems most_common_elem_freq elem_count_histogram}
   def self.pg_stats(table:, schema:)
     query = <<-SQL
-    SELECT *
-    FROM pg_stats
+    SELECT s.*, c.data_type
+    FROM pg_stats s
+      JOIN information_schema.columns c
+        ON s.schemaname = c.table_schema
+        AND s.tablename = c.table_name AND s.attname = c.column_name
     WHERE schemaname = $1 and tablename = $2
     SQL
 
