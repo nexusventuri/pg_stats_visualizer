@@ -1,6 +1,7 @@
 # Javascript
-- Fix histogram chart percentage distribuition
-  - Histogram chart needs tooltip to be showing the range the percentage is for (e.g. 0 - 10000)
+x Fix histogram chart percentage distribuition
+  x Histogram chart needs tooltip to be showing the range the percentage is for (e.g. 0 - 10000)
+- Give an idea of what the percentage is 
 - Table index info, size and number of rows
 - Column index info
 - Database settings

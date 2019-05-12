@@ -40,11 +40,16 @@ export default class HistogramMap {
     return this.histogram.get(value);
   }
 
-  labelFormatter = (value) => {
+  labelData = (value) => {
     if(this.isFirstValue(value)) {
-      return this.histogram.get(value);
+      return {
+        current: this.find(value)
+      }
     }
-    return ` ${this.getPrevious(value)} - ${this.find(value)}`;
+    return {
+      previous: this.getPrevious(value),
+      current: this.find(value)
+    }
   }
 
   isFirstValue = (value) => {

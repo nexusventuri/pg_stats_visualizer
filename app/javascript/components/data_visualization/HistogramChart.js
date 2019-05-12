@@ -18,6 +18,15 @@ export default class HistogramChart extends Component {
     this.map = HistogramMap.fromHistogramBounds(histogram_bounds, data_type);
   }
 
+  labelFormatter = (value) => {
+    let {previous, current} = this.map.labelData(value);
+    if(previous) {
+      return <span><b>{previous}</b> - <b>{current}</b></span>
+    } else {
+      return <span><b>{current}</b></span>
+    }
+  }
+
   render () {
     var linear = scaleLinear(this.map.keys, [0, 100]);
     return (
@@ -25,7 +34,7 @@ export default class HistogramChart extends Component {
         <LineChart data={this.map.graphData()} margin={{top: 5, right: 30, left: 20, bottom: 5}} >
           <XAxis dataKey="name" scale={linear} tickFormatter={this.map.formatter}/>
           <YAxis/>
-          <Tooltip labelFormatter={this.map.labelFormatter} formatter={this.map.tooltipFormatter}/>
+          <Tooltip labelFormatter={this.labelFormatter} formatter={this.map.tooltipFormatter}/>
           <Legend />
           <Line type="monotone" dataKey="cumulativePercentage" stroke="#8884d8"/>
         </LineChart>
