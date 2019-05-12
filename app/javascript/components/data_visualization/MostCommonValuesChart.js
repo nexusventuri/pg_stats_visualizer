@@ -13,7 +13,7 @@ export default class MostCommonValuesChart extends Component {
 
   render () {
     return (
-      <ResponsiveContainer width='100%' height={200}>
+      <ResponsiveContainer width='100%' height={400}>
         <BarChart data={this.data} margin={{top: 5, right: 30, left: 20, bottom: 5}} >
           <XAxis dataKey="name" />
           <YAxis />

@@ -44,11 +44,21 @@ export default class HistogramMap {
     return this.histogram.get(value);
   }
 
+  tooltipFormatter = (value) => {
+    return value + "%";
+  }
+
   cumulativePercentage() {
     let percentage = 100.0 / (this.histogram.size - 1);
     let cumulativePercentage = [percentage];
     this.keys.forEach((value, index) => { cumulativePercentage.push(cumulativePercentage[index] + percentage)})
     return cumulativePercentage;
+  }
+
+  graphData() {
+    return this.keys.map((val, i) => {
+      return { name: val, cumulativePercentage: this.cumulativePercentage()[i] }
+    });
   }
 
   static fromHistogramBounds(histogramBounds, dataType) {
@@ -86,9 +96,8 @@ export default class HistogramMap {
   }
 
   static cleanStringsForOrdering(values) {
-    let r = values.map(val => Latinize.convert(val).toLowerCase().replace(/[^a-z0-9]+/g, ''))
-    console.log(r)
-    return r
+    return values.map(val => Latinize.convert(val).toLowerCase().replace(/[^a-z0-9]+/g, ''));
+
   }
 
   static numberValueDistance(string) {
@@ -109,7 +118,6 @@ export default class HistogramMap {
     let substring = firstString.substring(0, highIndex);
 
     while(values.every(val => val.startsWith(substring)) && highIndex < firstString.length) {
-      console.log(highIndex);
       highIndex++;
       substring = firstString.substring(0, highIndex);
     }

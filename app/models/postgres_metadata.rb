@@ -26,7 +26,6 @@ class PostgresMetadata < ActiveRecord::Base
         AND s.tablename = c.table_name AND s.attname = c.column_name
     WHERE schemaname = $1 and tablename = $2
     SQL
-
     result = @conn.exec_params(query, [schema, table])
 
     result.map do |row|
