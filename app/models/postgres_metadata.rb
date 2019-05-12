@@ -36,4 +36,24 @@ class PostgresMetadata < ActiveRecord::Base
       row
     end
   end
+
+  def self.pg_stat_all_tables(table:, schema:)
+    query = <<-SQL
+    SELECT *
+    FROM pg_stat_all_tables
+    WHERE schemaname = $1 and relname = $2
+    SQL
+
+    @conn.exec_params(query, [schema, table])
+  end
+
+  def self.pg_statio_all_tables(table:, schema:)
+    query = <<-SQL
+    SELECT *
+    FROM pg_statio_all_tables
+    WHERE schemaname = $1 and relname = $2
+    SQL
+
+    @conn.exec_params(query, [schema, table])
+  end
 end

@@ -11,5 +11,7 @@ x Fix histogram chart percentage distribuition
 
 # Ruby
 - Sql analyzer, or explain explanation
+- Remove connection string from logs
+
 
 

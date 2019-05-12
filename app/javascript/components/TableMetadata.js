@@ -10,48 +10,48 @@ export default class TableMetadata extends Component {
   }
 
   render() {
-    let rowsRender = this.props.data.map(this.renderRow);
+    let tableColumnsRenderer = this.props.data.map(this.renderTableColumn);
 
-    return ( <div>{rowsRender}</div>);
+    return ( <div>{tableColumnsRenderer}</div>);
   }
 
-  renderRow = (row, key) => {
+  renderTableColumn = (tableColumn, key) => {
     return (
       <Container key={key} style={{ paddingBottom: '5em' }}>
-        <Header as='h4' attached='top' block>{row.attname}</Header>
+        <Header as='h4' attached='top' block>{tableColumn.attname}</Header>
         <Segment attached style={{paddingLeft: 0, paddingRight: 0}}>
-          {this.renderTabs(row)}
+          {this.renderTabs(tableColumn)}
         </Segment>
       </Container>
     );
   }
 
-  renderTabs = (row) => {
+  renderTabs = (tableColumn) => {
     const panes = [
-      this.histogramTab(row),
-      this.mostCommonValuesTab(row),
-      this.rawDataTab(row)
+      this.histogramTab(tableColumn),
+      this.mostCommonValuesTab(tableColumn),
+      this.rawDataTab(tableColumn)
     ].filter(pane => pane != null);
 
     return ( <Tab panes={panes} /> );
   }
 
-  mostCommonValuesTab = (row) => {
-    if(row.most_common_vals === null) {
+  mostCommonValuesTab = (tableColumn) => {
+    if(tableColumn.most_common_vals === null) {
       return null;
     }
 
-    return {menuItem: 'Most common values', render: () => <MostCommonValuesChart data={row} />}
+    return {menuItem: 'Most common values', render: () => <MostCommonValuesChart data={tableColumn} />}
   }
 
-  histogramTab = (row) => {
-    if(row.histogram_bounds === null) {
+  histogramTab = (tableColumn) => {
+    if(tableColumn.histogram_bounds === null) {
       return null;
     }
-    return {menuItem: 'Histogram bounds', render: () => <HistogramChart data={row} />}
+    return {menuItem: 'Histogram bounds', render: () => <HistogramChart data={tableColumn} />}
   }
 
-  rawDataTab = (row) => {
-    return {menuItem: 'Raw data', render: () => <RawDataVisualizer data={row} />}
+  rawDataTab = (tableColumn) => {
+    return {menuItem: 'Raw data', render: () => <RawDataVisualizer data={tableColumn} />}
   }
 }
