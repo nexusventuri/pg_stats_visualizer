@@ -13,11 +13,11 @@ class Api::V1::TableController < ApplicationController
 
   def pg_stats
     table, schema, url = params.permit(:table, :schema, :databaseUrl).values
-    data = {}
+    pg_stats = []
     PostgresMetadata.using_connection(url) do
-      data = PostgresMetadata.pg_stats(table: table, schema: schema).to_a
+      pg_stats = PostgresMetadata.pg_stats(table: table, schema: schema).to_a
     end
 
-    render json: data
+    render json: {pg_stats: pg_stats}
   end
 end

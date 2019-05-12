@@ -10,7 +10,7 @@ export default class TableMetadata extends Component {
   }
 
   render() {
-    let tableColumnsRenderer = this.props.data.map(this.renderTableColumn);
+    let tableColumnsRenderer = this.props.data.pg_stats.map(this.renderTableColumn);
 
     return ( <div>{tableColumnsRenderer}</div>);
   }

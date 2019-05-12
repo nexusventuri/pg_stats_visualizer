@@ -66,8 +66,11 @@ export default class TableList extends Component {
     if (this.state.activeIndexes.has(index)) {
       return (
         <Accordion.Content active={true}>
-        <Loader active={!this.state.tableMetadata.has(index)} inline='centered' />
-        <TableMetadata data={this.state.tableMetadata.get(index) || []} />
+          {
+            this.state.tableMetadata.has(index) ?
+              <TableMetadata data={this.state.tableMetadata.get(index)} /> :
+              <Loader active inline='centered' />
+          }
         </Accordion.Content>
       );
     }
