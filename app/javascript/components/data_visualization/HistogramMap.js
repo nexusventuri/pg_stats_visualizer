@@ -41,16 +41,27 @@ export default class HistogramMap {
   }
 
   labelFormatter = (value) => {
-    return this.histogram.get(value);
+    if(this.isFirstValue(value)) {
+      return this.histogram.get(value);
+    }
+    return ` ${this.getPrevious(value)} - ${this.find(value)}`;
+  }
+
+  isFirstValue = (value) => {
+    return this.keys.indexOf(value) == 0;
+  }
+
+  getPrevious = (value) => {
+    return this.find(this.keys[this.keys.indexOf(value) - 1]);
   }
 
   tooltipFormatter = (value) => {
-    return value + "%";
+    return value.toFixed(2) + "%";
   }
 
   cumulativePercentage() {
     let percentage = 100.0 / (this.histogram.size - 1);
-    let cumulativePercentage = [percentage];
+    let cumulativePercentage = [0];
     this.keys.forEach((value, index) => { cumulativePercentage.push(cumulativePercentage[index] + percentage)})
     return cumulativePercentage;
   }
