@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {Accordion, Icon, Loader} from 'semantic-ui-react'
-import TableMetadata from './TableMetadata'
+import TableInformation from './TableInformation'
 
 export default class TableList extends Component {
   constructor(props) {
@@ -8,7 +8,7 @@ export default class TableList extends Component {
     this.state = {
       activeIndexes: new Set([]),
       loadedIndexes: [],
-      tableMetadata: new Map([])
+      tableInformation: new Map([])
     }
   }
 
@@ -18,7 +18,7 @@ export default class TableList extends Component {
 
     this.setState( { activeIndexes: this.toggleActiveIndex(new Set(this.state.activeIndexes), index) } );
 
-    if(this.state.tableMetadata.has(index)) {
+    if(this.state.tableInformation.has(index)) {
       return;
     }
 
@@ -32,8 +32,8 @@ export default class TableList extends Component {
     }).then(response => {
       return response.json();
     }).then(data => {
-      let tableMetadata = new Map(this.state.tableMetadata).set(index, data);
-      this.setState({tableMetadata});
+      let tableInformation = new Map(this.state.tableInformation).set(index, data);
+      this.setState({tableInformation});
     })
   }
 
@@ -67,8 +67,8 @@ export default class TableList extends Component {
       return (
         <Accordion.Content active={true}>
           {
-            this.state.tableMetadata.has(index) ?
-              <TableMetadata data={this.state.tableMetadata.get(index)} /> :
+            this.state.tableInformation.has(index) ?
+              <TableInformation data={this.state.tableInformation.get(index)} /> :
               <Loader active inline='centered' />
           }
         </Accordion.Content>

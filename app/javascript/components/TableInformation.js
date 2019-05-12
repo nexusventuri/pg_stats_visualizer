@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import {Tab, Header, Container, Segment} from 'semantic-ui-react'
+import {Tab, Header, Container, Segment, Menu} from 'semantic-ui-react'
 import MostCommonValuesChart from './data_visualization/MostCommonValuesChart'
 import RawDataVisualizer from './data_visualization/RawDataVisualizer'
 import HistogramChart from './data_visualization/HistogramChart'
+import TableInformationHeader from './TableInformationHeader'
 
-export default class TableMetadata extends Component {
+export default class TableInformation extends Component {
   constructor(props) {
     super(props);
   }
@@ -12,7 +13,10 @@ export default class TableMetadata extends Component {
   render() {
     let tableColumnsRenderer = this.props.data.pg_stats.map(this.renderTableColumn);
 
-    return ( <div>{tableColumnsRenderer}</div>);
+    return ( <div>
+            <TableInformationHeader data={this.props.data} />
+            {tableColumnsRenderer}
+            </div>);
   }
 
   renderTableColumn = (tableColumn, key) => {

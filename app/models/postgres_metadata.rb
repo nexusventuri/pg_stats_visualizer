@@ -37,20 +37,20 @@ class PostgresMetadata < ActiveRecord::Base
     end
   end
 
-  def self.pg_stat_all_tables(table:, schema:)
+  def self.pg_stat_user_tables(table:, schema:)
     query = <<-SQL
     SELECT *
-    FROM pg_stat_all_tables
+    FROM pg_stat_user_tables
     WHERE schemaname = $1 and relname = $2
     SQL
 
     @conn.exec_params(query, [schema, table])
   end
 
-  def self.pg_statio_all_tables(table:, schema:)
+  def self.pg_statio_user_tables(table:, schema:)
     query = <<-SQL
     SELECT *
-    FROM pg_statio_all_tables
+    FROM pg_statio_user_tables
     WHERE schemaname = $1 and relname = $2
     SQL
 
