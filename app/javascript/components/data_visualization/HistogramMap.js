@@ -12,18 +12,19 @@ export default class HistogramMap {
     this.histogram = new Map();
   }
 
-  add(key, value) {
+  add(key, value, increment) {
     if(typeof key != 'number') {
       raise('The key needs to be a number');
     }
 
+    increment = increment || 1
     let inserted = false
     while(!inserted) {
       if(!this.histogram.has(key)) {
         this.histogram.set(key, value);
         inserted = true;
       } else {
-        key++
+        key += increment;
       }
     }
   }
@@ -87,7 +88,7 @@ export default class HistogramMap {
     } else if(intTypes.indexOf(dataType) >= 0) {
       histogramBounds.forEach(val => map.add(parseInt(val), val));
     } else if (floatTypes.indexOf(dataType) >= 0) {
-      histogramBounds.forEach(val => map.add(parseFloat(val), val));
+      histogramBounds.forEach(val => map.add(parseFloat(val), val, 1/512.0));
     } else if (booleanTypes.indexOf(dataType) >= 0) {
       histogramBounds.forEach(val => map.add(val== 't' ? 1 : 0, val));
     } else {
