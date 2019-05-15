@@ -32,8 +32,8 @@ export default class TableInformation extends Component {
 
   renderTabs = (tableColumn) => {
     const panes = [
-      this.histogramTab(tableColumn),
       this.mostCommonValuesTab(tableColumn),
+      this.histogramTab(tableColumn),
       this.rawDataTab(tableColumn)
     ].filter(pane => pane != null);
 
