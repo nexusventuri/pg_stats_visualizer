@@ -11,7 +11,7 @@ class PostgresMetadata < ActiveRecord::Base
     @conn.exec(<<-SQL
       SELECT table_schema, table_name
       FROM information_schema.tables
-      WHERE table_schema IN ('information_schema', 'pg_catalog') ORDER BY 1, 2 desc;
+      WHERE table_schema NOT IN ('information_schema', 'pg_catalog') ORDER BY 1, 2 desc;
     SQL
     )
   end
