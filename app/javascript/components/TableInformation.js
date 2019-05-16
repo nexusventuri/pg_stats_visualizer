@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {Tab, Header, Container, Segment, Menu} from 'semantic-ui-react'
 import MostCommonValuesChart from './data_visualization/MostCommonValuesChart'
-import RawDataVisualizer from './data_visualization/RawDataVisualizer'
+import HashAsTableVisualizer from './data_visualization/HashAsTableVisualizer'
 import HistogramChart from './data_visualization/HistogramChart'
 import TableInformationHeader from './TableInformationHeader'
 
@@ -56,6 +56,6 @@ export default class TableInformation extends Component {
   }
 
   rawDataTab = (tableColumn) => {
-    return {menuItem: 'Raw data', render: () => <RawDataVisualizer data={tableColumn} />}
+    return {menuItem: 'Raw data', render: () => <HashAsTableVisualizer data={tableColumn} />}
   }
 }

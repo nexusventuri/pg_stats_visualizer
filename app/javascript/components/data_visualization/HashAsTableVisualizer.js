@@ -4,7 +4,7 @@ import { Table } from 'semantic-ui-react'
 export default class HashAsTableVisualizer extends React.Component {
   render() {
     return (
-      <Table>
+      <Table attached={this.props.attached}>
         <Table.Body>
           { Object.entries(this.props.data).map(this.renderPair) }
         </Table.Body>

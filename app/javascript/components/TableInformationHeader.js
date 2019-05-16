@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Tab, Menu} from 'semantic-ui-react'
 import HashAsTableVisualizer from './data_visualization/HashAsTableVisualizer'
+import IndexList from './IndexList'
 
 export default class TableInformationHeader extends Component {
   constructor(props) {
@@ -35,7 +36,7 @@ export default class TableInformationHeader extends Component {
   pgStatUserIndex = () => {
     return {
       menuItem: 'Index Stats (pg_stat_user_indexes)',
-      render: () => <p>pg_stat_user_indexes</p>
+      render: () => <IndexList index_stats={this.props.data.index_stats} />
     }
   }
 
