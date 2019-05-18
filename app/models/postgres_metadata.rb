@@ -16,7 +16,7 @@ class PostgresMetadata < ActiveRecord::Base
     )
   end
 
-  PG_STATS_ARRAY_FIELDS = %w{most_common_vals most_common_freq histogram_bounds}
+  PG_STATS_ARRAY_FIELDS = %w{most_common_vals most_common_freq histogram_bounds most_common_elems}
   def self.pg_stats(table:, schema:)
     query = <<-SQL
     SELECT s.*, c.data_type
