@@ -36,6 +36,9 @@ export default class Stats extends Component {
   }
 
   render() {
+    if(!this.props.active) {
+      return (<div></div>);
+    }
     return (
       <Container>
         <Form onSubmit={this.handleSubmit}>
