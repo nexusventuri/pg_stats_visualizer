@@ -26,14 +26,4 @@ class Api::V1::TableController < ApplicationController
 
     render json: {pg_stats: pg_stats, pg_stat_user_tables: pg_stat_user_tables, pg_statio_user_tables: pg_statio_user_tables, index_stats: index_stats}
   end
-
-  def all_index_stats
-    url = params.permit(:databaseUrl).values
-    stats = []
-    PostgresMetadata.using_connection(url) do
-      stats = PostgresMetadata.all_index_stats_by_range(0, 10)
-    end
-
-    render json: {index_stats_by_range: stats}
-  end
 end

@@ -10,8 +10,7 @@ Rails.application.routes.draw do
         end
       end
 
-      post 'all_index_stats', action: :all_index_stats, controller: tabl
-
+      post 'all_index_stats', action: :all_index_stats, controller: :index
     end
   end
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
