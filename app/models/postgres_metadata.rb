@@ -89,4 +89,37 @@ class PostgresMetadata < ActiveRecord::Base
     SQL
     @conn.exec_params(query, [schema, table])
   end
+
+  def all_index_stats_by_range(min, max)
+    query = <<-SQL
+    SELECT
+        ixs.indexname,
+        c.reltuples AS num_rows,
+        pg_size_pretty(pg_relation_size(quote_ident(indexrelname)::text)) AS index_size,
+        CASE WHEN indisunique THEN 'Y'
+           ELSE 'N'
+        END AS UNIQUE,
+        idx_scan AS number_of_scans,
+        idx_tup_read AS tuples_read,
+        idx_tup_fetch AS tuples_fetched,
+        CASE when indisvalid THEN 'Y'
+           ELSE 'N'
+        END as valid,
+        indexdef
+    FROM pg_tables t
+    LEFT OUTER JOIN pg_class c ON t.tablename=c.relname
+    LEFT OUTER JOIN
+        ( SELECT c.relname AS ctablename, ipg.relname AS indexname, x.indnatts AS number_of_columns, idx_scan, idx_tup_read, indisvalid, idx_tup_fetch, indexrelname, indisunique
+              FROM pg_index x
+              JOIN pg_class c ON c.oid = x.indrelid
+              JOIN pg_class ipg ON ipg.oid = x.indexrelid
+              JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid AND psai.schemaname = 'public' )
+        AS foo
+        ON t.tablename = foo.ctablename
+    LEFT OUTER JOIN pg_indexes ixs ON t.tablename = ixs.tablename AND foo.indexname = ixs.indexname
+    WHERE idx_scan between $1 and $2 and t.schemaname = $3
+    ORDER BY 1,2;
+    SQL
+    @conn.exec_params(query, [min, max, 'public'])
+  end
 end

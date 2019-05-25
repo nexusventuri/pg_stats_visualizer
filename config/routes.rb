@@ -9,6 +9,9 @@ Rails.application.routes.draw do
           post 'pg_stats', action: :pg_stats, controller: :table
         end
       end
+
+      post 'all_index_stats', action: :all_index_stats, controller: tabl
+
     end
   end
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
