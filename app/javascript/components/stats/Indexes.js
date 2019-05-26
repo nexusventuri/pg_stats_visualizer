@@ -121,10 +121,9 @@ export default class Indexes extends Component {
   renderData = () => {
     const leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
     const rightIndexStats = (this.state.right.all_index_stats || []);
-    const hasRightIndexStats = (rightIndexStats || []).length > 0;
+    const hasRightIndexStats = rightIndexStats.length > 0;
 
-    let dataset = leftIndexStats
-    dataset = dataset.reduce((map, val) => {
+    let indexesGroupedByTable = leftIndexStats.reduce((map, val) => {
       const key = `${val.schemaname}.${val.tablename}`
       let indexes = (map.get(key) || []);
       indexes.push(this.indexId(val));
@@ -135,26 +134,23 @@ export default class Indexes extends Component {
     const leftDict = leftIndexStats.reduce(this.convertToHash, {});
     const rightDict = rightIndexStats.reduce(this.convertToHash, {});
 
-    return Array.from(dataset, ([key, indexIds], i) => {
+    return Array.from(indexesGroupedByTable, ([key, indexIds], i) => {
 
       let tableContent = indexIds.map((indexId, row) => {
         let leftVal = leftDict[indexId];
         let rightVal = rightDict[indexId];
-        const indexName = leftVal.indexname.replace(/_/g, ' ')
-        const indexDef = leftVal.indexdef
-        const indexSize = leftVal.index_size
 
         return (
           <Table.Row key={row}>
-            <Table.Cell> {indexName} </Table.Cell>
+            <Table.Cell> {leftVal.indexname.replace(/_/g, ' ')} </Table.Cell>
             <Table.Cell>{leftVal.number_of_scans}</Table.Cell>
             { hasRightIndexStats ? <Table.Cell>{rightVal.number_of_scans}</Table.Cell> : null}
             <Table.Cell>{leftVal.tuples_read}</Table.Cell>
             { hasRightIndexStats ? <Table.Cell>{rightVal.tuples_read}</Table.Cell> : null}
             <Table.Cell>{leftVal.tuples_fetched}</Table.Cell>
             { hasRightIndexStats ? <Table.Cell>{rightVal.tuples_fetched}</Table.Cell> : null}
-            <Table.Cell>{indexSize}</Table.Cell>
-            <Table.Cell>{indexDef}</Table.Cell>
+            <Table.Cell>{leftVal.index_size}</Table.Cell>
+            <Table.Cell>{leftVal.indexdef}</Table.Cell>
           </Table.Row>
         );
       })
