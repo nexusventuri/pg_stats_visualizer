@@ -17,6 +17,7 @@ X Table index info, size and number of rows
 # Refactorings
 - Move api endpoints to specific controllers
 - Upgrade to latest ruby version
+- Generalize form
 
 
 
