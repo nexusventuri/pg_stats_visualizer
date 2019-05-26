@@ -1,5 +1,5 @@
 # Features
-- Index diff
+x Index diff
 - Column index info
 - Index diff over time
 x Fix histogram chart percentage distribuition
