@@ -90,12 +90,10 @@ export default class Indexes extends Component {
 
   renderFilters = () => {
     let leftIndexStats = this.state.left.all_index_stats || [];
-    let rightIndexStats = this.state.right.all_index_stats || [];
-    const totalCount = Math.max(leftIndexStats.length, rightIndexStats.length)
+    const totalCount = leftIndexStats.length;
 
     leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
-    rightIndexStats = this.filterIndexStats(this.state.right.all_index_stats);
-    const filteredCount = Math.max(leftIndexStats.length, rightIndexStats.length)
+    const filteredCount = leftIndexStats.length;
 
     if(totalCount > 0) {
       return (
@@ -137,26 +135,23 @@ export default class Indexes extends Component {
     const leftDict = leftIndexStats.reduce(this.convertToHash, {});
     const rightDict = rightIndexStats.reduce(this.convertToHash, {});
 
-    let lastRowTable = null;
     return Array.from(dataset, ([key, indexIds], i) => {
-      let leftVal = null;
-      let rightVal = null;
 
       let tableContent = indexIds.map((indexId, row) => {
-        leftVal = leftDict[indexId];
-        rightVal = rightDict[indexId];
-        const indexName = ((leftVal && leftVal.indexname) || (rightVal && rightVal.indexname)).replace(/_/g, ' ')
-        const indexDef = (leftVal && leftVal.indexdef) || (rightVal && rightVal.indexdef)
-        const indexSize = (leftVal && leftVal.index_size) || (rightVal && rightVal.index_size)
+        let leftVal = leftDict[indexId];
+        let rightVal = rightDict[indexId];
+        const indexName = leftVal.indexname.replace(/_/g, ' ')
+        const indexDef = leftVal.indexdef
+        const indexSize = leftVal.index_size
 
         return (
           <Table.Row key={row}>
             <Table.Cell> {indexName} </Table.Cell>
-            { leftVal ? <Table.Cell>{leftVal.number_of_scans}</Table.Cell> : null}
+            <Table.Cell>{leftVal.number_of_scans}</Table.Cell>
             { hasRightIndexStats ? <Table.Cell>{rightVal.number_of_scans}</Table.Cell> : null}
-            { leftVal ? <Table.Cell>{leftVal.tuples_read}</Table.Cell> : null}
+            <Table.Cell>{leftVal.tuples_read}</Table.Cell>
             { hasRightIndexStats ? <Table.Cell>{rightVal.tuples_read}</Table.Cell> : null}
-            { leftVal ? <Table.Cell>{leftVal.tuples_fetched}</Table.Cell> : null}
+            <Table.Cell>{leftVal.tuples_fetched}</Table.Cell>
             { hasRightIndexStats ? <Table.Cell>{rightVal.tuples_fetched}</Table.Cell> : null}
             <Table.Cell>{indexSize}</Table.Cell>
             <Table.Cell>{indexDef}</Table.Cell>
@@ -174,11 +169,11 @@ export default class Indexes extends Component {
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Index name</Table.HeaderCell>
-              { leftVal ? <Table.HeaderCell>Scans A</Table.HeaderCell> : null}
+              <Table.HeaderCell>Scans A</Table.HeaderCell>
               { hasRightIndexStats ? <Table.HeaderCell>Scans B</Table.HeaderCell> : null}
-              { leftVal ? <Table.HeaderCell>Read A</Table.HeaderCell> : null}
+              <Table.HeaderCell>Read A</Table.HeaderCell>
               { hasRightIndexStats ? <Table.HeaderCell>Read B</Table.HeaderCell> : null}
-              { leftVal ? <Table.HeaderCell>Fetched A</Table.HeaderCell> : null}
+              <Table.HeaderCell>Fetched A</Table.HeaderCell>
               { hasRightIndexStats ? <Table.HeaderCell>Fetched B</Table.HeaderCell> : null}
               <Table.HeaderCell>Index Size</Table.HeaderCell>
               <Table.HeaderCell>Index Definition</Table.HeaderCell>
