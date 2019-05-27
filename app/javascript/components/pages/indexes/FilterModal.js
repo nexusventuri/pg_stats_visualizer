@@ -1,5 +1,5 @@
-import React, {Component} from 'react'
-import {Button, Modal, Form, Icon} from 'semantic-ui-react'
+import React, {Component, createRef} from 'react'
+import {Container,Ref, Sticky, Button, Modal, Form, Icon} from 'semantic-ui-react'
 
 export default class FilterModal extends Component {
   constructor(props) {
@@ -57,9 +57,18 @@ export default class FilterModal extends Component {
 
     const filteredCount = filter(elements).length;
 
+
     return (
       <Modal
-        trigger={<Button onClick={this.handleOpen}>Show Modal</Button>}
+        trigger={
+          <Sticky context={this.props.contextRef} offset={24}>
+            <Container>
+              <Button onClick={this.handleOpen} color='green'>
+                <Icon name='filter' />
+              </Button>
+            </Container>
+          </Sticky>
+        }
         onClose={this.handleClose}
         open={this.state.modalOpen}
       >
@@ -82,7 +91,7 @@ export default class FilterModal extends Component {
             <Icon name='checkmark' /> Apply filters
           </Button>
           <Button onClick={this.handleClose}>
-            <Icon name='checkmark' /> Close
+            <Icon name='remove' /> Close
           </Button>
         </Modal.Actions>
       </Modal>

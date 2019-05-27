@@ -1,9 +1,11 @@
-import React, {Component} from 'react'
+import React, {Component, createRef} from 'react'
 
-import {Button, Modal, Form, Grid, Container, Table} from 'semantic-ui-react'
+import {Button, Modal, Form, Grid, Container, Table, Ref} from 'semantic-ui-react'
 import FilterModal from './indexes/FilterModal'
 
 export default class Indexes extends Component {
+  contextRef = createRef()
+
   constructor(props) {
     super(props);
     this.state = {
@@ -60,22 +62,26 @@ export default class Indexes extends Component {
       return (<div></div>);
     }
     return (
-      <Container>
-        <Grid columns={2}>
-          <Grid.Row>
-            <Grid.Column>
-              {this.renderForm('leftDatabaseUrl', 'A', this.handleChange, this.handleLeftSubmit, this.state.leftError)}
-            </Grid.Column>
-            <Grid.Column>
-              {this.renderForm('rightDatabaseUrl', 'B', this.handleChange, this.handleRightSubmit)}
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
-        {this.renderFilters()}
-        <Grid columns={2}>
-          {this.renderData()}
-        </Grid>
-      </Container>
+      <Ref innerRef={this.contextRef}>
+        <Container>
+            <Grid columns={2}>
+              <Grid.Row>
+                <Grid.Column>
+                  {this.renderForm('leftDatabaseUrl', 'A', this.handleChange, this.handleLeftSubmit, this.state.leftError)}
+                </Grid.Column>
+                <Grid.Column>
+                  {this.renderForm('rightDatabaseUrl', 'B', this.handleChange, this.handleRightSubmit)}
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
+            <Container textAlign='right'>
+              {this.renderFilters()}
+            </Container>
+            <Container>
+              {this.renderData()}
+            </Container>
+        </Container>
+      </Ref>
     )
   }
 
@@ -96,7 +102,7 @@ export default class Indexes extends Component {
 
   renderFilters = () => {
     return (
-      <FilterModal onFiltersUpdated={this.updateFilterFunction} elements={this.state.left.all_index_stats} />
+      <FilterModal contextRef={this.contextRef} onFiltersUpdated={this.updateFilterFunction} elements={this.state.left.all_index_stats} />
     )
   }
 
