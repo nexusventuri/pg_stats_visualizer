@@ -8,7 +8,8 @@ export default class Indexes extends Component {
     this.state = {
       left: {},
       right: {},
-      scansFilter: Infinity
+      scansFilter: Infinity,
+      leftError: false
     };
   }
 
@@ -19,13 +20,21 @@ export default class Indexes extends Component {
   }
 
   handleRightSubmit = () => {
-    this.handleSubmit('right', '/api/v1/all_index_stats')
+    if(Object.keys(this.state.left).length == 0) {
+      this.setState({leftError: true})
+    } else {
+      this.handleSubmit('right', '/api/v1/all_index_stats')
+    }
   }
 
   handleSubmit = (column, url) => {
     const databaseUrl = this.state[`${column}DatabaseUrl`];
+    if(!databaseUrl) {
+      return;
+    }
 
     this.setState({loading: true});
+    this.setState({leftError: false});
 
     fetch(url, {
       method: 'POST',
@@ -53,7 +62,7 @@ export default class Indexes extends Component {
         <Grid columns={2}>
           <Grid.Row>
             <Grid.Column>
-              {this.renderForm('leftDatabaseUrl', 'A', this.handleChange, this.handleLeftSubmit)}
+              {this.renderForm('leftDatabaseUrl', 'A', this.handleChange, this.handleLeftSubmit, this.state.leftError)}
             </Grid.Column>
             <Grid.Column>
               {this.renderForm('rightDatabaseUrl', 'B', this.handleChange, this.handleRightSubmit)}
@@ -68,11 +77,11 @@ export default class Indexes extends Component {
     )
   }
 
-  renderForm = (name, dbRef, changeCallback, submitCallback) => {
+  renderForm = (name, dbRef, changeCallback, submitCallback, error) => {
     return (
     <Form onSubmit={submitCallback}>
       <Form.Group>
-        <Form.Input name={name} inline placeholder={`Connection string for DB ${dbRef}`} label={`DB ${dbRef}`} onChange={changeCallback}/>
+        <Form.Input name={name} inline placeholder={`Connection string for DB ${dbRef}`} label={`DB ${dbRef}`} onChange={changeCallback} error={error}/>
         <Form.Button>Submit</Form.Button>
       </Form.Group>
     </Form>
@@ -81,12 +90,10 @@ export default class Indexes extends Component {
 
   renderFilters = () => {
     let leftIndexStats = this.state.left.all_index_stats || [];
-    let rightIndexStats = this.state.right.all_index_stats || [];
-    const totalCount = Math.max(leftIndexStats.length, rightIndexStats.length)
+    const totalCount = leftIndexStats.length;
 
     leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
-    rightIndexStats = this.filterIndexStats(this.state.right.all_index_stats);
-    const filteredCount = Math.max(leftIndexStats.length, rightIndexStats.length)
+    const filteredCount = leftIndexStats.length;
 
     if(totalCount > 0) {
       return (
@@ -113,10 +120,10 @@ export default class Indexes extends Component {
 
   renderData = () => {
     const leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
-    const rightIndexStats = this.filterIndexStats(this.state.right.all_index_stats);
+    const rightIndexStats = (this.state.right.all_index_stats || []);
+    const hasRightIndexStats = rightIndexStats.length > 0;
 
-    let dataset = (leftIndexStats.length > 0 ? leftIndexStats : rightIndexStats);
-    dataset = dataset.reduce((map, val) => {
+    let indexesGroupedByTable = leftIndexStats.reduce((map, val) => {
       const key = `${val.schemaname}.${val.tablename}`
       let indexes = (map.get(key) || []);
       indexes.push(this.indexId(val));
@@ -127,29 +134,23 @@ export default class Indexes extends Component {
     const leftDict = leftIndexStats.reduce(this.convertToHash, {});
     const rightDict = rightIndexStats.reduce(this.convertToHash, {});
 
-    let lastRowTable = null;
-    return Array.from(dataset, ([key, indexIds], i) => {
-      let leftVal = null;
-      let rightVal = null;
+    return Array.from(indexesGroupedByTable, ([key, indexIds], i) => {
 
       let tableContent = indexIds.map((indexId, row) => {
-        leftVal = leftDict[indexId];
-        rightVal = rightDict[indexId];
-        const indexName = ((leftVal && leftVal.indexname) || (rightVal && rightVal.indexname)).replace(/_/g, ' ')
-        const indexDef = (leftVal && leftVal.indexdef) || (rightVal && rightVal.indexdef)
-        const indexSize = (leftVal && leftVal.index_size) || (rightVal && rightVal.index_size)
+        let leftVal = leftDict[indexId];
+        let rightVal = rightDict[indexId];
 
         return (
           <Table.Row key={row}>
-            <Table.Cell> {indexName} </Table.Cell>
-            { leftVal ? <Table.Cell>{leftVal.number_of_scans}</Table.Cell> : null}
-            { rightVal ? <Table.Cell>{rightVal.number_of_scans}</Table.Cell> : null}
-            { leftVal ? <Table.Cell>{leftVal.tuples_read}</Table.Cell> : null}
-            { rightVal ? <Table.Cell>{rightVal.tuples_read}</Table.Cell> : null}
-            { leftVal ? <Table.Cell>{leftVal.tuples_fetched}</Table.Cell> : null}
-            { rightVal ? <Table.Cell>{rightVal.tuples_fetched}</Table.Cell> : null}
-            <Table.Cell>{indexSize}</Table.Cell>
-            <Table.Cell>{indexDef}</Table.Cell>
+            <Table.Cell> {leftVal.indexname.replace(/_/g, ' ')} </Table.Cell>
+            <Table.Cell>{leftVal.number_of_scans}</Table.Cell>
+            { hasRightIndexStats ? <Table.Cell>{rightVal.number_of_scans}</Table.Cell> : null}
+            <Table.Cell>{leftVal.tuples_read}</Table.Cell>
+            { hasRightIndexStats ? <Table.Cell>{rightVal.tuples_read}</Table.Cell> : null}
+            <Table.Cell>{leftVal.tuples_fetched}</Table.Cell>
+            { hasRightIndexStats ? <Table.Cell>{rightVal.tuples_fetched}</Table.Cell> : null}
+            <Table.Cell>{leftVal.index_size}</Table.Cell>
+            <Table.Cell>{leftVal.indexdef}</Table.Cell>
           </Table.Row>
         );
       })
@@ -164,12 +165,12 @@ export default class Indexes extends Component {
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Index name</Table.HeaderCell>
-              { leftVal ? <Table.HeaderCell>Scans A</Table.HeaderCell> : null}
-              { rightVal ? <Table.HeaderCell>Scans B</Table.HeaderCell> : null}
-              { leftVal ? <Table.HeaderCell>Read A</Table.HeaderCell> : null}
-              { rightVal ? <Table.HeaderCell>Read B</Table.HeaderCell> : null}
-              { leftVal ? <Table.HeaderCell>Fetched A</Table.HeaderCell> : null}
-              { rightVal ? <Table.HeaderCell>Fetched B</Table.HeaderCell> : null}
+              <Table.HeaderCell>Scans A</Table.HeaderCell>
+              { hasRightIndexStats ? <Table.HeaderCell>Scans B</Table.HeaderCell> : null}
+              <Table.HeaderCell>Read A</Table.HeaderCell>
+              { hasRightIndexStats ? <Table.HeaderCell>Read B</Table.HeaderCell> : null}
+              <Table.HeaderCell>Fetched A</Table.HeaderCell>
+              { hasRightIndexStats ? <Table.HeaderCell>Fetched B</Table.HeaderCell> : null}
               <Table.HeaderCell>Index Size</Table.HeaderCell>
               <Table.HeaderCell>Index Definition</Table.HeaderCell>
             </Table.Row>
