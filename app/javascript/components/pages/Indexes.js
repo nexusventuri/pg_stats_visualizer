@@ -1,15 +1,19 @@
-import React, {Component} from 'react'
+import React, {Component, createRef} from 'react'
 
-import {Form, Grid, Container, Table} from 'semantic-ui-react'
+import {Button, Modal, Form, Grid, Container, Table, Ref} from 'semantic-ui-react'
+import FilterModal from './indexes/FilterModal'
 
 export default class Indexes extends Component {
+  contextRef = createRef()
+
   constructor(props) {
     super(props);
     this.state = {
       left: {},
       right: {},
       scansFilter: Infinity,
-      leftError: false
+      leftError: false,
+      filter: x => x
     };
   }
 
@@ -58,22 +62,26 @@ export default class Indexes extends Component {
       return (<div></div>);
     }
     return (
-      <Container>
-        <Grid columns={2}>
-          <Grid.Row>
-            <Grid.Column>
-              {this.renderForm('leftDatabaseUrl', 'A', this.handleChange, this.handleLeftSubmit, this.state.leftError)}
-            </Grid.Column>
-            <Grid.Column>
-              {this.renderForm('rightDatabaseUrl', 'B', this.handleChange, this.handleRightSubmit)}
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
-        {this.renderFilters()}
-        <Grid columns={2}>
-          {this.renderData()}
-        </Grid>
-      </Container>
+      <Ref innerRef={this.contextRef}>
+        <Container>
+            <Grid columns={2}>
+              <Grid.Row>
+                <Grid.Column>
+                  {this.renderForm('leftDatabaseUrl', 'A', this.handleChange, this.handleLeftSubmit, this.state.leftError)}
+                </Grid.Column>
+                <Grid.Column>
+                  {this.renderForm('rightDatabaseUrl', 'B', this.handleChange, this.handleRightSubmit)}
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
+            <Container textAlign='right'>
+              {this.renderFilters()}
+            </Container>
+            <Container>
+              {this.renderData()}
+            </Container>
+        </Container>
+      </Ref>
     )
   }
 
@@ -88,53 +96,27 @@ export default class Indexes extends Component {
     );
   }
 
-  renderFilters = () => {
-    let leftIndexStats = this.state.left.all_index_stats || [];
-    const totalCount = leftIndexStats.length;
-
-    leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
-    const filteredCount = leftIndexStats.length;
-
-    if(totalCount > 0) {
-      return (
-        <Grid.Column as={Form}>
-          <Form.Input
-            label={`Filter by the total number of scans: ${this.state.scansFilter}, showing ${filteredCount} indexes out of ${totalCount}`}
-            min={0}
-            max={100000}
-            name='scansFilter'
-            onChange={this.handleChange}
-            step={1000}
-            type='range'
-            value={this.state.ScansFilter}
-          />
-        </Grid.Column>
-      )
-    }
-    return '';
+  updateFilterFunction = (fun) => {
+    this.setState({filter: fun})
   }
 
-  filterIndexStats = (index_stats) => {
-    return (index_stats || []).filter(el => el.number_of_scans <= this.state.scansFilter)
+  renderFilters = () => {
+    return (
+      <FilterModal contextRef={this.contextRef} onFiltersUpdated={this.updateFilterFunction} elements={this.state.left.all_index_stats} />
+    )
   }
 
   renderData = () => {
-    const leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
+    const leftIndexStats = this.state.filter(this.state.left.all_index_stats || []);
     const rightIndexStats = (this.state.right.all_index_stats || []);
     const hasRightIndexStats = rightIndexStats.length > 0;
 
-    let indexesGroupedByTable = leftIndexStats.reduce((map, val) => {
-      const key = `${val.schemaname}.${val.tablename}`
-      let indexes = (map.get(key) || []);
-      indexes.push(this.indexId(val));
-      map.set(key, indexes);
-      return map;
-    }, new Map())
+    let indexesGroupedByTable = this.groupBy(leftIndexStats, val => `${val.schemaname}.${val.tablename}`, this.indexId)
 
     const leftDict = leftIndexStats.reduce(this.convertToHash, {});
     const rightDict = rightIndexStats.reduce(this.convertToHash, {});
 
-    return Array.from(indexesGroupedByTable, ([key, indexIds], i) => {
+    return indexesGroupedByTable.map(([key, indexIds], i) => {
 
       let tableContent = indexIds.map((indexId, row) => {
         let leftVal = leftDict[indexId];
@@ -181,6 +163,15 @@ export default class Indexes extends Component {
         </Table>
       )
     })
+  }
+
+  groupBy = (dict, keyFunction, valueFunction) => {
+    return Object.entries(dict.reduce(function(acc, value) {
+      let key = keyFunction(value);
+      let data = valueFunction(value);
+      (acc[key] = acc[key] || []).push(data);
+      return acc;
+    }, {}));
   }
 
   convertToHash = (dict, value) => {

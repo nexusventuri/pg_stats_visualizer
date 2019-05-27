@@ -2,6 +2,7 @@
 x Index diff
 - Column index info
 - Index diff over time
+- Allow multiple filter methods
 x Fix histogram chart percentage distribuition
   x Histogram chart needs tooltip to be showing the range the percentage is for (e.g. 0 - 10000)
 X Table index info, size and number of rows
@@ -18,7 +19,7 @@ X Table index info, size and number of rows
 - Move api endpoints to specific controllers
 - Upgrade to latest ruby version
 - Generalize form
-
+- Create a query builder
 
 
 
