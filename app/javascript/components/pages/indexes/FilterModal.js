@@ -1,5 +1,5 @@
-import React, {Component, createRef} from 'react'
-import {Container,Ref, Sticky, Button, Modal, Form, Icon} from 'semantic-ui-react'
+import React, {Component} from 'react'
+import {Grid, Container, Sticky, Button, Modal, Form, Icon} from 'semantic-ui-react'
 
 export default class FilterModal extends Component {
   constructor(props) {
@@ -74,16 +74,18 @@ export default class FilterModal extends Component {
       >
         <Modal.Header>Select filters</Modal.Header>
         <Modal.Content>
-          <Form.Input
-            label={`Filter by the total number of scans: ${this.state.localSettings.scansFilter}`}
-            min={0}
-            max={100000}
-            name='scansFilter'
-            onChange={this.handleLocalChange}
-            step={1000}
-            type='range'
-            value={this.state.ScansFilter}
-          />
+          <Grid.Column as={Form}>
+            <Form.Input
+              label={`Filter by the total number of scans: ${this.state.localSettings.scansFilter}`}
+              min={0}
+              max={100000}
+              name='scansFilter'
+              onChange={this.handleLocalChange}
+              step={1000}
+              type='range'
+              value={this.state.localSettings.scansFilter}
+            />
+          </Grid.Column>
         </Modal.Content>
         <Modal.Actions>
           Will show {filteredCount} indexes out of {totalNumberOfIndexes}
