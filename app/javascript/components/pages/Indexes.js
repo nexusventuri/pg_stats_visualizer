@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 
 import {Button, Modal, Form, Grid, Container, Table} from 'semantic-ui-react'
+import FilterModal from './indexes/FilterModal'
 
 export default class Indexes extends Component {
   constructor(props) {
@@ -9,7 +10,8 @@ export default class Indexes extends Component {
       left: {},
       right: {},
       scansFilter: Infinity,
-      leftError: false
+      leftError: false,
+      filter: x => x
     };
   }
 
@@ -88,47 +90,18 @@ export default class Indexes extends Component {
     );
   }
 
+  updateFilterFunction = (fun) => {
+    this.setState({filter: fun})
+  }
+
   renderFilters = () => {
     return (
-  <Modal trigger={<Button>Show Modal</Button>}>
-    <Modal.Header>Select filters</Modal.Header>
-    </Modal.Content>
-  </Modal>
+      <FilterModal onFiltersUpdated={this.updateFilterFunction} elements={this.state.left.all_index_stats} />
     )
   }
 
-  renderScansFilter = () => {
-    let leftIndexStats = this.state.left.all_index_stats || [];
-    const totalCount = leftIndexStats.length;
-
-    leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
-    const filteredCount = leftIndexStats.length;
-
-    if(totalCount > 0) {
-      return (
-        <Grid.Column as={Form}>
-          <Form.Input
-            label={`Filter by the total number of scans: ${this.state.scansFilter}, showing ${filteredCount} indexes out of ${totalCount}`}
-            min={0}
-            max={100000}
-            name='scansFilter'
-            onChange={this.handleChange}
-            step={1000}
-            type='range'
-            value={this.state.ScansFilter}
-          />
-        </Grid.Column>
-      )
-    }
-    return '';
-  }
-
-  filterIndexStats = (index_stats) => {
-    return (index_stats || []).filter(el => el.number_of_scans <= this.state.scansFilter)
-  }
-
   renderData = () => {
-    const leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
+    const leftIndexStats = this.state.filter(this.state.left.all_index_stats || []);
     const rightIndexStats = (this.state.right.all_index_stats || []);
     const hasRightIndexStats = rightIndexStats.length > 0;
 

@@ -1,40 +1,90 @@
 import React, {Component} from 'react'
-import {Button, Modal, Form} from 'semantic-ui-react'
+import {Button, Modal, Form, Icon} from 'semantic-ui-react'
 
 export default class FilterModal extends Component {
   constructor(props) {
     super(props);
     console.log('modal constructor called')
+    let defaultSettings = {
+      scansFilter: Infinity
+    }
     this.state = {
-      test: 10
+      modalOpen: false,
+      localSettings: {...defaultSettings},
+      settings: defaultSettings
     }
   }
 
-  handleChange = (event, {name, value}) => this.setState({[name]: value})
+  handleLocalChange = (event, {name, value}) => {
+    let localSettings = this.state.localSettings;
+    localSettings[name] = value;
+    console.log('localSettings assignment', {localSettings})
+    this.setState({localSettings});
+  }
 
-  filter =
+  handleOpen = () => {
+    this.setState({ modalOpen: true, localSettings: {...this.state.settings} })
+  }
+
+  handleClose = () => {
+    this.setState({ modalOpen: false })
+  }
+
+  handleCloseAndSave = () => {
+    this.setState({ modalOpen: false, settings: {...this.state.localSettings} });
+    this.props.onFiltersUpdated(this.filter(this.state.localSettings));
+  }
+
+  filter = (settings) => {
+    return (elements) => {
+      console.log('applying filters', settings, elements, elements.length)
+      elements = (elements || []).filter(el => el.number_of_scans <= settings.scansFilter)
+
+      return elements;
+    }
+  }
 
   render() {
-    let leftIndexStats = this.state.left.all_index_stats || [];
-    const totalCount = leftIndexStats.length;
+    let elements = this.props.elements || [];
+    let totalNumberOfIndexes = elements.length;
 
-    leftIndexStats = this.filterIndexStats(this.state.left.all_index_stats);
-    const filteredCount = leftIndexStats.length;
+    console.log('settings', this.state.localSettings, this.state.settings, this.state.localSettings === this.state.settings);
+    if(totalNumberOfIndexes == 0) {
+      return null;
+    }
+
+    const filter = this.filter(this.state.localSettings);
+
+    const filteredCount = filter(elements).length;
 
     return (
-      <Modal trigger={<Button>Show Modal</Button>}>
+      <Modal
+        trigger={<Button onClick={this.handleOpen}>Show Modal</Button>}
+        onClose={this.handleClose}
+        open={this.state.modalOpen}
+      >
         <Modal.Header>Select filters</Modal.Header>
+        <Modal.Content>
           <Form.Input
-            label={`Filter by the total number of scans: ${this.state.scansFilter}, showing ${filteredCount} indexes out of ${totalCount}`}
+            label={`Filter by the total number of scans: ${this.state.localSettings.scansFilter}`}
             min={0}
             max={100000}
             name='scansFilter'
-            onChange={this.handleChange}
+            onChange={this.handleLocalChange}
             step={1000}
             type='range'
             value={this.state.ScansFilter}
           />
         </Modal.Content>
+        <Modal.Actions>
+          Will show {filteredCount} indexes out of {totalNumberOfIndexes}
+          <Button color='green' onClick={this.handleCloseAndSave}>
+            <Icon name='checkmark' /> Apply filters
+          </Button>
+          <Button onClick={this.handleClose}>
+            <Icon name='checkmark' /> Close
+          </Button>
+        </Modal.Actions>
       </Modal>
     )
   }
