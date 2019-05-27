@@ -120,17 +120,20 @@ export default class Indexes extends Component {
 
       let tableContent = indexIds.map((indexId, row) => {
         let leftVal = leftDict[indexId];
-        let rightVal = rightDict[indexId];
+        let rightVal = rightDict[indexId] || {};
+        let number_of_scans_error = leftVal.number_of_scans === rightVal.number_of_scans && leftVal.number_of_scans == 0
+        let tuples_read_error = leftVal.tuples_read === rightVal.tuples_read && leftVal.tuples_read == 0
+        let tuples_fetched_error = leftVal.tuples_fetched === rightVal.tuples_fetched && leftVal.tuples_fetched == 0
 
         return (
           <Table.Row key={row}>
             <Table.Cell> {leftVal.indexname.replace(/_/g, ' ')} </Table.Cell>
-            <Table.Cell>{leftVal.number_of_scans}</Table.Cell>
-            { hasRightIndexStats ? <Table.Cell>{rightVal.number_of_scans}</Table.Cell> : null}
-            <Table.Cell>{leftVal.tuples_read}</Table.Cell>
-            { hasRightIndexStats ? <Table.Cell>{rightVal.tuples_read}</Table.Cell> : null}
-            <Table.Cell>{leftVal.tuples_fetched}</Table.Cell>
-            { hasRightIndexStats ? <Table.Cell>{rightVal.tuples_fetched}</Table.Cell> : null}
+            <Table.Cell error={number_of_scans_error}>{leftVal.number_of_scans}</Table.Cell>
+            { hasRightIndexStats ? <Table.Cell error={number_of_scans_error}>{rightVal.number_of_scans}</Table.Cell> : null}
+            <Table.Cell error={tuples_read_error}>{leftVal.tuples_read}</Table.Cell>
+            { hasRightIndexStats ? <Table.Cell error={tuples_read_error}>{rightVal.tuples_read}</Table.Cell> : null}
+            <Table.Cell error={tuples_fetched_error}>{leftVal.tuples_fetched}</Table.Cell>
+            { hasRightIndexStats ? <Table.Cell error={tuples_fetched_error}>{rightVal.tuples_fetched}</Table.Cell> : null}
             <Table.Cell>{leftVal.index_size}</Table.Cell>
             <Table.Cell>{leftVal.indexdef}</Table.Cell>
           </Table.Row>

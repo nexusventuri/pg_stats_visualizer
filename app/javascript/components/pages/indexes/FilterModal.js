@@ -6,7 +6,9 @@ export default class FilterModal extends Component {
     super(props);
     console.log('modal constructor called')
     let defaultSettings = {
-      scansFilter: Infinity
+      scansFilter: Infinity,
+      regexPosFilter: '',
+      regexNegFilter: '',
     }
     this.state = {
       modalOpen: false,
@@ -37,8 +39,25 @@ export default class FilterModal extends Component {
 
   filter = (settings) => {
     return (elements) => {
-      console.log('applying filters', settings, elements, elements.length)
-      elements = (elements || []).filter(el => el.number_of_scans <= settings.scansFilter)
+      let el_to_string = el => `${el.schemaname}.${el.tablename}#${el.indexname}`
+      if(settings.scansFilter != Infinity) {
+        elements = (elements || []).filter(el => el.number_of_scans <= settings.scansFilter)
+      }
+
+      try {
+        if(settings.regexPosFilter != '') {
+          let regExp = new RegExp(settings.regexPosFilter)
+          elements = (elements || []).filter(el => el_to_string(el).match(regExp))
+        }
+
+        if(settings.regexNegFilter != '') {
+          let regExp = new RegExp(settings.regexNegFilter)
+          elements = (elements || []).filter(el => {return !el_to_string(el).match(regExp)})
+        }
+      }
+      catch(err) {
+        elements = [];
+      }
 
       return elements;
     }
@@ -65,6 +84,7 @@ export default class FilterModal extends Component {
             <Container>
               <Button onClick={this.handleOpen} color='green'>
                 <Icon name='filter' />
+                Filter
               </Button>
             </Container>
           </Sticky>
@@ -84,6 +104,20 @@ export default class FilterModal extends Component {
               step={1000}
               type='range'
               value={this.state.localSettings.scansFilter}
+            />
+            <Form.Input
+              name='regexPosFilter'
+              placeholder='regex to match table.schema#index'
+              label='Regex match for table.schema#index'
+              onChange={this.handleLocalChange}
+              value={this.state.localSettings.regexPosFilter}
+            />
+            <Form.Input
+              name='regexNegFilter'
+              placeholder='regex to exclude table.schema#index'
+              label='Regex to exclude table.schema#index'
+              onChange={this.handleLocalChange}
+              value={this.state.localSettings.regexNegFilter}
             />
           </Grid.Column>
         </Modal.Content>
