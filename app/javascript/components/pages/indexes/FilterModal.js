@@ -107,15 +107,15 @@ export default class FilterModal extends Component {
             />
             <Form.Input
               name='regexPosFilter'
-              placeholder='regex to match table.schema#index'
-              label='Regex match for table.schema#index'
+              placeholder='Keep indexes by regex (schema.table#index)'
+              label='Keep indexes by regex (schema.table#index)'
               onChange={this.handleLocalChange}
               value={this.state.localSettings.regexPosFilter}
             />
             <Form.Input
               name='regexNegFilter'
-              placeholder='regex to exclude table.schema#index'
-              label='Regex to exclude table.schema#index'
+              placeholder='Exclude indexes by regex (schema.table#index)'
+              label='Exclude indexes by regex (schema.table#index)'
               onChange={this.handleLocalChange}
               value={this.state.localSettings.regexNegFilter}
             />
