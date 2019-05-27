@@ -1,8 +1,8 @@
 import React from 'react'
 import {Container, Form, Loader, Header, Responsive, Menu} from 'semantic-ui-react'
 import TableList from './TableList'
-import Stats from './stats/Stats'
-import Indexes from './stats/Indexes'
+import Stats from './pages/Stats'
+import Indexes from './pages/Indexes'
 import HistogramChart from './data_visualization/HistogramChart'
 
 class App extends React.Component {

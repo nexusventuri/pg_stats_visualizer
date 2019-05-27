@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 
-import {Form, Grid, Container, Table} from 'semantic-ui-react'
+import {Button, Modal, Form, Grid, Container, Table} from 'semantic-ui-react'
 
 export default class Indexes extends Component {
   constructor(props) {
@@ -89,6 +89,15 @@ export default class Indexes extends Component {
   }
 
   renderFilters = () => {
+    return (
+  <Modal trigger={<Button>Show Modal</Button>}>
+    <Modal.Header>Select filters</Modal.Header>
+    </Modal.Content>
+  </Modal>
+    )
+  }
+
+  renderScansFilter = () => {
     let leftIndexStats = this.state.left.all_index_stats || [];
     const totalCount = leftIndexStats.length;
 
@@ -123,18 +132,12 @@ export default class Indexes extends Component {
     const rightIndexStats = (this.state.right.all_index_stats || []);
     const hasRightIndexStats = rightIndexStats.length > 0;
 
-    let indexesGroupedByTable = leftIndexStats.reduce((map, val) => {
-      const key = `${val.schemaname}.${val.tablename}`
-      let indexes = (map.get(key) || []);
-      indexes.push(this.indexId(val));
-      map.set(key, indexes);
-      return map;
-    }, new Map())
+    let indexesGroupedByTable = this.groupBy(leftIndexStats, val => `${val.schemaname}.${val.tablename}`, this.indexId)
 
     const leftDict = leftIndexStats.reduce(this.convertToHash, {});
     const rightDict = rightIndexStats.reduce(this.convertToHash, {});
 
-    return Array.from(indexesGroupedByTable, ([key, indexIds], i) => {
+    return indexesGroupedByTable.map(([key, indexIds], i) => {
 
       let tableContent = indexIds.map((indexId, row) => {
         let leftVal = leftDict[indexId];
@@ -181,6 +184,15 @@ export default class Indexes extends Component {
         </Table>
       )
     })
+  }
+
+  groupBy = (dict, keyFunction, valueFunction) => {
+    return Object.entries(dict.reduce(function(acc, value) {
+      let key = keyFunction(value);
+      let data = valueFunction(value);
+      (acc[key] = acc[key] || []).push(data);
+      return acc;
+    }, {}));
   }
 
   convertToHash = (dict, value) => {
